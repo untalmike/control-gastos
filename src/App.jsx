@@ -16,17 +16,23 @@ function App() {
   const [animarModal, setAnimarModal] = useState(false)
 
   const [gastoEditar, setGastoEditar] = useState({})
+  const [gastoEliminar, setGastoEliminar] = useState({})
 
   useEffect(() => {
     
     if(Object.keys(gastoEditar).length > 0){
-      handleNuevoGasto()
+      setModal(true)
+
+      setTimeout(() => {
+        setAnimarModal(true)
+      }, 500);
     }
 
   }, [gastoEditar])
 
   const handleNuevoGasto = () =>  {
     setModal(true)
+    setGastoEditar({})
 
     setTimeout(() => {
       setAnimarModal(true)
@@ -34,15 +40,30 @@ function App() {
   }
 
   const guardarGasto = (gasto) => {
-    gasto.id = generarId()
-    gasto.fecha = Date.now()
-    setGastos([...gastos, gasto])
-  
+    if(gasto.id) {
+
+      const gastosActualizados = gastos.map(gastoState => gastoState.id === gasto.id ? gasto : gastoState)
+      setGastos(gastosActualizados)
+
+    } else {
+      
+      gasto.id = generarId()
+      gasto.fecha = Date.now()
+      setGastos([...gastos, gasto])
+
+    }
+      
     // Cierra el modal
     setAnimarModal(false)
     setTimeout(() => {
       setModal(false)
     }, 500);
+  }
+
+  const eliminarGasto = id => {
+    const gastosActualizados = gastos.filter(gasto => gasto.id !== id)
+
+    setGastos(gastosActualizados)
   }
 
   return (
@@ -60,7 +81,8 @@ function App() {
           <main>
             <ListadoGastos
               gastos={gastos}
-              setGastos={setGastoEditar}
+              setGastoEditar={setGastoEditar}
+              eliminarGasto={eliminarGasto}
             />
           </main>
           <div className='nuevo-gasto'>
@@ -78,6 +100,7 @@ function App() {
                   animarModal={animarModal} 
                   setAnimarModal={setAnimarModal}
                   guardarGasto={guardarGasto}
+                  gastoEditar={gastoEditar}
                 />}
     </div>
   )
